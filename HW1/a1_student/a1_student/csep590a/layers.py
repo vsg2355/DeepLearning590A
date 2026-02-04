@@ -27,7 +27,7 @@ def affine_forward(x, w, b):
     # will need to reshape the input into rows.                               #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    print('this is git affine_forward')
     N = x.shape[0]
     x_row = x.reshape(N, -1) #NxD
     out = x_row.dot(w) + b   #NxM
