@@ -28,8 +28,10 @@ def affine_forward(x, w, b):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
-
+    N = x.shape[0]
+    x_row = x.reshape(N, -1) #NxD
+    out = x_row.dot(w) + b   #NxM
+    
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -61,7 +63,13 @@ def affine_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    N = x.shape[0]
+    x_row = x.reshape(N, -1)  #NxD
+    
+    dx_row = dout.dot(w.T)   #NxD
+    dw = x_row.T.dot(dout)   #DxM
+    db = np.sum(dout, axis=0)
+    dx = dx_row.reshape(x.shape)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -87,7 +95,7 @@ def relu_forward(x):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    out = np.maximum(0,x)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -114,7 +122,8 @@ def relu_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    x = cache
+    dx = dout*(x>1)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -139,8 +148,17 @@ def svm_loss(x, y):
     """
     loss, dx = None, None
 
-    pass
-
+    N = x.shape[0]
+    correct_scores = x[np.arange(N),y]
+    margins = np.maximum(0,x-correct_scores[:,None]+1.0)
+    margins[np.arange(N),y] = 0
+    
+    loss = np.sum(margins)/N
+    dx = np.zeros_like(x)
+    dx[margins > 0] = 1
+    dx[np.arange(N),y] -= np.sum(margins > 0, axis=1)
+    dx/=N
+   
     return loss, dx
 
 
@@ -165,7 +183,15 @@ def softmax_loss(x, y):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    shifted_logits = x - np.max(x, axis=1, keepdims = True)
+    exp_scores = np.exp(shifted_logits)
+    probs = exp_scores/np.sum(exp_scores, axis=1, keepdims=True)
+    
+    N=x.shape[0]
+    loss=-np.sum(np.log(probs[np.arange((N),y)]))/N
+    dx = prob.copy()
+    dx[np.arange((N),y)] -=1
+    dx/=N
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
